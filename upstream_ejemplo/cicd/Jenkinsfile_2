@@ -1,0 +1,36 @@
+// Este es el job que ejecuta la parte principal del trabajo, denominado principal_job y se ejecuta siempre, de forma directa o 
+// a partir de la llamada del job launcher
+pipeline {
+    agent any
+    parameters {
+        choice choices: ['LAB', 'DES', 'PRU', 'PRE', 'PRO'], description: 'Entorno de trabajo', name: 'entorno'
+        string description: 'Aplicacion a desplegar', name: 'aplicacion'
+        booleanParam description: '¿Deseas reiniciar el pool?', name: 'reiniciar_pool'
+    }
+    stages {
+        stage('Desplegando la aplicacion') {
+            steps {
+                echo "Entorno de trabajo: ${params.entorno}"
+                echo "Aplicación desplegada: ${params.aplicacion}"
+                echo "¿Requiere reinicio? ${params.reiniciar_pool}"
+            }
+        }
+        stage('Reiniciar pool') {
+            // Establecemos una condición para lanzar el job secundario únicamente cuando
+            // se solicite
+            when {
+                expression { return params.secondary_job } 
+            }
+            steps {
+                build(
+                    job: 'secondary_job', 
+                    parameters: [
+                        string(name: 'entorno', value: 'LAB'),
+                        string(name: 'aplicacion', value: 'RedCoaPruebas'),
+                        string(name: 'accion', value: "recycle") 
+                    ]
+                )
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+// Este es job que inicia trabajo, y que llamaremos launcher_job
+pipeline {
+    agent any
+    parameters {
+        choice choices: ['LAB', 'DES', 'PRU', 'PRE', 'PRO'], description: 'Entorno de trabajo', name: 'entorno'
+        string description: 'Aplicacion a desplegar', name: 'aplicacion'
+        booleanParam description: '¿Deseas reiniciar el pool?', name: 'secondary_job'
+    }
+    stages {
+        stage('Lanzar job principal') {
+            steps {
+                build(
+                    wait: false,
+                    job: 'principal_job', 
+                    parameters: [
+                        string(name: 'entorno', value: "${params.entorno}"),
+                        string(name: 'aplicacion', value: '$params.aplicacion'),
+                        booleanParam(name: 'reiniciar_pool', value: "$params.secondary_job")
+                    ]
+                )
+            }
+        }
+    }
+}

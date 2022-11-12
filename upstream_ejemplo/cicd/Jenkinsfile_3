@@ -1,0 +1,18 @@
+// Este job es el último, al que llamaremos secondary_job, y sólo se ejecuta cuando así se solicita desde el principal_job
+pipeline {
+    agent any
+    parameters {
+        choice choices: ['stop', 'start', 'recycle', ], description: 'Actuar sobre el pool', name: 'accion'
+        choice choices: ['LAB', 'DES', 'PRU', 'PRE', 'PRO'], description: 'Entorno de trabajo', name: 'entorno'
+        string description: 'Aplicacion a desplegar', name: 'aplicacion'
+    }
+    stages {
+        stage('Actuando sobre el pool') {
+            steps {
+                echo "Acción ejecutada: ${params.accion}"
+                echo "Entorno de trabajo: ${params.entorno}"
+                echo "Aplicación desplegada: $params.aplicacion"
+            }
+        }
+    }
+}
